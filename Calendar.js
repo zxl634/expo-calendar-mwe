@@ -13,7 +13,6 @@ export function MyCalendar () {
     if (status !== 'granted') {
       console.log("Permissions not granted")
       return false
-      // alert('Hey! You heve not enabled selected permissions');
     } else {
       console.log("Permissions granted")
       return true
@@ -21,10 +20,8 @@ export function MyCalendar () {
   }
   async function getCalendars () {
     return Calendar.getCalendarsAsync()
-    // return await Calendar.getDefaultCalendarAsync()
   }
   async function createTD2Calendar (sourceId) {
-    console.log("sourceId: ", sourceId)
     return Calendar.createCalendarAsync({
       "title": "TD2",
       "color": "#1BADF8",
@@ -33,14 +30,11 @@ export function MyCalendar () {
     })
   }
   async function askPermission () {
-    // permissions returns only for location permissions on iOS and under certain conditions, see Permissions.LOCATION
     const { status } = await Permissions.askAsync(Permissions.CALENDAR);
     if (status === 'granted') {
       return true
-      // alert("Permission granted")
     } else {
       return false
-      // throw new Error('Permission not granted');
     }
   }
   if (firstRun && Platform.OS === "ios") {
@@ -53,40 +47,35 @@ export function MyCalendar () {
       }
     }).then((r) => {
       if (r) {
-        // alert("I have permission")
+        console.log("Collecting titles of existing calendars to see whether the new calendar already exists")
         return getCalendars().then(calendars => {
           const calendarTitles = []
           let sourceId
           let TD2Id
           calendars.forEach(c => {
-            // console.log(c)
-            // console.log(c.source.name)
             calendarTitles.push(c.title)
-            // Get sourceId
-            //if (c.source.name === "Default" && c.source.type === "local") {
-            sourceId = c.source.id // Pick random id here
-            //}
+            if (c.source.name === "Default" && c.source.type === "local") {
+              sourceId = c.source.id
+            }
             if (c.title === "TD2") {
-              console.log(c)
               TD2Id = c.id
             }
           })
+          // Create calendar if not already existing
           if (calendarTitles.includes("TD2")) {
+            console.log("New calendar existed")
             return TD2Id
           } else {
+            console.log("Creating new calendar")
             return createTD2Calendar(sourceId)
           }
-          // alert(JSON.stringify(c))
-          // alert(JSON.stringify(c.source.id))
         })
-        // return getCalendars()
       } else {
-        // alert("I don't have permission")
         return null
       }
     }).then(cid => {
-      console.log(cid)
       if (cid) {
+        console.log("Creating event in calendar with id", cid)
         return Calendar.createEventAsync(cid, {
           startDate: new Date(),
         })
