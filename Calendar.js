@@ -81,6 +81,7 @@ export function MyCalendar () {
         })
       }
     }).catch(e => {
+      alert(e)
       console.log(e)
     })
   }
